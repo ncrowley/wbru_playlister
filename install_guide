@@ -1,0 +1,12 @@
+How to get ready to use WBRU TuneGenie to Spotify converter:
+01) Clone and install requests from: https://github.com/kennethreitz/requests
+    (install the package by navigating to the cloned directory and running:
+    'python setup.py install' you may have to run this command as su in order
+    to have permission to the correct directories, all python packages are 
+    installed in this manner)
+02) Clone and install spotipy from: https://github.com/plamere/spotipy
+03) Ensure that SSL is installed by opening python and running 'import ssl'
+    if there is an error with that command then SSL is not installed so
+    download and install it from: https://pypi.python.org/pypi/ssl/
+04)  
+
