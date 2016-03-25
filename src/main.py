@@ -12,9 +12,9 @@ import spotipy.util as util
 # This is for parsing the json from THE GENIE OF TUNES!
 import json
 # Sleep function
-import time
 
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, date, timedelta
+import time
 
 # PRINT IT ALL PRETTY
 import pprint
@@ -67,17 +67,32 @@ brand = 'wbru'
 now = datetime.now()
 timezone_offset = timedelta(hours=4)
 now = (now - timezone_offset)
-# FIXME: Need to fix pytz package install
-day_hours = timedelta(hours=5)
-start_str = now.strftime("%Y-%m-%dT%H:00:00-04:00")
-print("Start time: " + start_str)
-day_hours = timedelta(hours=1)
-end_str = now.strftime("%Y-%m-%dT%H:59:59-04:00")
-print("End time: " + end_str)
-url = "http://" + brand + ".tunegenie.com/api/v1/brand/nowplaying/?hour=" + str(now.hour) + "&since=" + start_str + "&until=" + end_str
-print("url: " + url)
+tunegenie_songs = []
 
-referer = 'http://' + brand + '.tunegenie.com/onair'
+# FIXME: Need to fix pytz package install
+for i in range(0,23):
+    hours = timedelta(hours=i)
+    now = now - hours
+    start_str = now.strftime("%Y-%m-%dT%H:00:00-04:00")
+    print("Start time: " + start_str)
+    end_str = now.strftime("%Y-%m-%dT%H:59:59-04:00")
+    print("End time: " + end_str)
+    url = "http://" + brand + ".tunegenie.com/api/v1/brand/nowplaying/?hour=" + str(now.hour) + "&since=" + start_str + "&until=" + end_str
+    print("url: " + url)
+    referer = 'http://' + brand + '.tunegenie.com/onair'
+    request = http.request('GET', url, fields=None, headers={'referer': referer})
+    tunegenie_songs.extend(json.loads(request.data)['response'])
+    #for d in json.loads(request.data)['response']:
+    #    print("testing")
+    #    tunegenie_songs.append(d)
+    #    pprint.pprint(tunegenie_songs)
+
+
+
+print "Request status: " + str(request.status)
+pprint.pprint(tunegenie_songs)
+#for d in tunegenie_songs:
+#    pprint.pprint(d)
 #doRequest url, "http://#{@brand}.tunegenie.com/onair/"
 # getLast24Hrs
 i = 0
@@ -86,20 +101,17 @@ i = 0
     
 
 
-request = http.request('GET', url, fields=None, headers={'referer': referer})
-print "Request status: " + str(request.status)
-pprint.pprint(request.data)
-quit()
+#quit()
 
 # print(request.data)
-json_data = request.data
+#json_data = request.data
 
 # Now we need to process this JSON data that we have gotten
 # pprint.pprint(json.loads(json_data))
 
-json_decoded = json.loads(json_data)
+#json_decoded = json.loads(json_data)
 
-print type(json_decoded)
+#print type(json_decoded)
 
 ## The return type of json.loads() is a 'dictionary'
 ## Within that dictionary 'response' contains all the data we want
@@ -144,8 +156,13 @@ if token:
     pprint.pprint(playlists)
     playlist_id = playlists['id']
     track_ids = []
-    for s in json_decoded['response']:
-        results = sp.search(q=(s['artist'] + ' ' + s['song']), limit=1)
+    #for s in json_decoded['response']:
+    i = 0
+    for s in tunegenie_songs:
+        try:
+            results = sp.search(q=(s['artist'] + ' ' + s['song']), limit=1)
+        except:
+            print("error finding song:", s['artist'], " ", s['song'])
         for r in results['tracks']['items']:
             #pprint.pprint(r)
             print 'Track id: ' + r['id']
@@ -153,7 +170,13 @@ if token:
             for a in r['artists']:
                 print 'Artist name: ' + a['name']
             print 'Track name: ' + r['name']
-        time.sleep(1)
+        time.sleep(0.1)
+        i = i + 1
+        if i >= 90:
+            results = sp.user_playlist_add_tracks(uname, playlist_id, track_ids)
+            print 'Results of add to playlist: ' + str(results)
+            track_ids = []
+            i = 0
     results = sp.user_playlist_add_tracks(uname, playlist_id, track_ids)
 else:
     print("Can't get token for", uname)
