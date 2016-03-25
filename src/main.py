@@ -14,6 +14,8 @@ import json
 # Sleep function
 import time
 
+from datetime import datetime, date, time, timedelta
+
 # PRINT IT ALL PRETTY
 import pprint
 
@@ -53,17 +55,41 @@ print 'Spotify Username: ' + uname
 #user = sp.user(uname)
 #pprint.pprint(user)
 
+brand = 'wbru'
 
 # Contact TuneGenie
 # getTopHits
 # Adapted version of the code from here:
 # https://github.com/colinodell/tunegenie-spotify/blob/master/lib/tunegenie.coffee
-brand = 'wbru'
-url = 'http://' + brand + '.tunegenie.com/api/v1/brand/tophits'
-referer = 'http://' + brand + '.tunegenie.com/tophits'
+# url = 'http://' + brand + '.tunegenie.com/api/v1/brand/tophits'
+# referer = 'http://' + brand + '.tunegenie.com/tophits'
+
+now = datetime.now()
+timezone_offset = timedelta(hours=4)
+now = (now - timezone_offset)
+# FIXME: Need to fix pytz package install
+day_hours = timedelta(hours=5)
+start_str = now.strftime("%Y-%m-%dT%H:00:00-04:00")
+print("Start time: " + start_str)
+day_hours = timedelta(hours=1)
+end_str = now.strftime("%Y-%m-%dT%H:59:59-04:00")
+print("End time: " + end_str)
+url = "http://" + brand + ".tunegenie.com/api/v1/brand/nowplaying/?hour=" + str(now.hour) + "&since=" + start_str + "&until=" + end_str
+print("url: " + url)
+
+referer = 'http://' + brand + '.tunegenie.com/onair'
+#doRequest url, "http://#{@brand}.tunegenie.com/onair/"
+# getLast24Hrs
+i = 0
+
+#for i in range(24):
+    
+
 
 request = http.request('GET', url, fields=None, headers={'referer': referer})
 print "Request status: " + str(request.status)
+pprint.pprint(request.data)
+quit()
 
 # print(request.data)
 json_data = request.data
@@ -74,7 +100,6 @@ json_data = request.data
 json_decoded = json.loads(json_data)
 
 print type(json_decoded)
-
 
 ## The return type of json.loads() is a 'dictionary'
 ## Within that dictionary 'response' contains all the data we want

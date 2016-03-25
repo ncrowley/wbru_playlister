@@ -8,5 +8,5 @@ How to get ready to use WBRU TuneGenie to Spotify converter:
 03) Ensure that SSL is installed by opening python and running 'import ssl'
     if there is an error with that command then SSL is not installed so
     download and install it from: https://pypi.python.org/pypi/ssl/
-04)  
+04) At this point you should be all set to get up and running!
 
